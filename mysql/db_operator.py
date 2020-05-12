@@ -106,7 +106,7 @@ class DbOperator:
         """
         open_id, email = user
         cursor = self.db.cursor()
-        update = ("UPDATE users SET email='%s' WHERE open_id=%s;")
+        update = ("UPDATE users SET email=%s WHERE open_id=%s;")
         cursor.execute(update, (email, open_id))
 
         # Commit the changes
