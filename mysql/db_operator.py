@@ -5,8 +5,6 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 '''
-
-
 import mysql.connector
 from mysql.connector import errorcode
 
@@ -40,15 +38,34 @@ class DbOperator:
                     user="DbOperator",           # 数据库用户名
                     passwd="DoNotAnswer2048!",   # 数据库密码
                     database='ObDb')             # 直接选择特定数据库
-        print("db created")
+        print("db connection created")
 
     def __del__(self):
         # 关闭数据库连接
         self.db.close()
-        print("db deleted")
+        print("db connection deleted")
 
-    def add_user(self):
+    def add_user(self, user):
+        """Register new user.
+        Add user info to database.
+
+        Args:
+            user: A tuple of user info like : (open_id, email)
+
+        Returns:
+            success or not: True/False
+        """
+        cursor = self.db.cursor()
+        insert_new_user = (
+                "INSERT INTO users (open_id, email, reg_date) "
+                "VALUES (%s, %s, NOW())")
+        cursor.execute(insert_new_user, user)
+
+        # Commit the changes
+        cursor.commit() 
+        cursor.close()
         return True
+
     def find_user(self):
         return True
     def update_user(self):
@@ -93,12 +110,10 @@ class DbOperator:
         cursor = self.db.cursor()        # 使用cursor()方法获取操作游标
 
         query = "SELECT * FROM test WHERE id = %s ;" # 无论什么类型的数据，占位符都使用%s
-         
+        
         # 使用execute方法执行SQL语句
-        cursor.execute(query, (id, ))
+        cursor.execute(query, (id,))
         result = cursor.fetchall()
-
-
         '''
         for (first_name, last_name, hire_date) in cursor:
             print("{}, {} was hired on {:%d %b %Y}".format(
@@ -120,16 +135,23 @@ class DbCreator:
                     user="DbOperator",           # 数据库用户名
                     passwd="DoNotAnswer2048!",   # 数据库密码
                     database='ObDb')             # 直接选择特定数据库
-        print("db created")
+        print("db connection created")
 
     def __del__(self):
         # 关闭数据库连接
         self.db.close()
-        print("db deleted")
+        print("db connection deleted")
 
     def create_table(self):
-        cursor = self.db.cursor()        # 使用cursor()方法获取操作游标
+        """Create table.
+        If table doesn't exist, creat it.
 
+        Args:
+            nothing
+        Returns:
+            nothing
+        """
+        cursor = self.db.cursor()        # 获取操作游标
         for table_name in TABLES:
             table_description = TABLES[table_name]
             try:
@@ -149,14 +171,19 @@ class DbCreator:
 
 if __name__ == "__main__":
     print("start running")
-    '''
+    
     worker = DbOperator()
-    result = worker.get_record(111)
+    result = worker.add_user(("test_user1","test1@email.com"))
     print(result)
-    '''
+    
+    print("finish")
+
+    '''# 创建数据表是一次性操作，此后不再需要执行
     worker = DbCreator()
     worker.create_table()
-    print("finish")
+    print("create tables finish")
+    '''
+    
 
 
 # 使用 fetchone() 方法获取一条数据库。
