@@ -24,7 +24,7 @@ TABLES['users'] = (
 TABLES['articles'] = (
     "CREATE TABLE `articles` ("
     "  `article_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
-    "  `URL` varchar(200) NOT NULL,"
+    "  `URL` varchar(2048) NOT NULL,"
     "  `open_id` varchar(40) NOT NULL,"
     "  `backup_addr` varchar(100) NOT NULL,"
     "  `start_date` date NOT NULL,"
