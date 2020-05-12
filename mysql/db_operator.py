@@ -66,8 +66,34 @@ class DbOperator:
         cursor.close()
         return True
 
-    def find_user(self):
-        return True
+    def find_user(self, open_id):
+        """Get user info.
+        Get user info from database. If user dosn't exist,
+        return False and empty dict.
+
+        Args:
+            open_id: str offered by wechat
+
+        Returns:
+            success: True/False
+            result: a dict of {'user_id','open_id','email','reg_date'}
+        """
+        success = True
+        cursor = self.db.cursor()
+        query = ("SELECT user_id, email, reg_date FROM users "
+                "WHERE open_id = %s")
+        cursor.execute(query, (open_id,))
+        result = {}
+        for (user_id, email, reg_date) in cursor:
+            result['user_id'] = user_id
+            result['open_id'] = open_id
+            result['email'] = email
+            result['reg_date'] = reg_date
+        cursor.close()
+        if len(result) == 0:
+            success = False
+        return success, result
+
     def update_user(self):
         return True
     def remove_user(self):
@@ -173,7 +199,21 @@ if __name__ == "__main__":
     print("start running")
     
     worker = DbOperator()
-    result = worker.add_user(("test_user1","test1@email.com"))
+    # result = worker.add_user(("test_user1","test1@email.com"))
+
+
+
+
+
+
+    
+    print("find exist user:")
+    success, result = worker.find_user("test_user1")
+    print(success)
+    print(result)
+    print("find invalid user:")
+    success, result = worker.find_user("nobody")
+    print(success)
     print(result)
     
     print("finish")
