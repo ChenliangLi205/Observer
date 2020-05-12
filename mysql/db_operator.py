@@ -13,7 +13,7 @@ TABLES = {}
 TABLES['users'] = (
     "CREATE TABLE `users` ("
     "  `user_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
-    "  `open_id` varchar(40) NOT NULL,"
+    "  `open_id` varchar(128) NOT NULL,"
     "  `email` varchar(255) NOT NULL,"
     "  `reg_date` date NOT NULL,"
     "  PRIMARY KEY (`user_id`), UNIQUE KEY `open_id` (`open_id`)"
@@ -23,7 +23,7 @@ TABLES['articles'] = (
     "CREATE TABLE `articles` ("
     "  `article_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
     "  `URL` varchar(2048) NOT NULL,"
-    "  `open_id` varchar(40) NOT NULL,"
+    "  `open_id` varchar(128) NOT NULL,"
     "  `backup_addr` varchar(100) NOT NULL,"
     "  `start_date` date NOT NULL,"
     "  `status` INT UNSIGNED NOT NULL,"
@@ -59,12 +59,18 @@ class DbOperator:
         insert_new_user = (
                 "INSERT INTO users (open_id, email, reg_date) "
                 "VALUES (%s, %s, NOW())")
-        cursor.execute(insert_new_user, user)
+        success = True
+        try:
+            cursor.execute(insert_new_user, user)
+            # Commit the changes
+            self.db.commit() 
+        except:
+            self.db.rollback()
+            success = False
+            # log it
 
-        # Commit the changes
-        self.db.commit() 
         cursor.close()
-        return True
+        return success
 
     def find_user(self, open_id):
         """Get user info.
@@ -92,6 +98,7 @@ class DbOperator:
         cursor.close()
         if len(result) == 0:
             success = False
+            # log it
         return success, result
 
     def update_user(self, user):
@@ -107,15 +114,42 @@ class DbOperator:
         open_id, email = user
         cursor = self.db.cursor()
         update = ("UPDATE users SET email=%s WHERE open_id=%s;")
-        cursor.execute(update, (email, open_id))
-
-        # Commit the changes
-        self.db.commit() 
+        success = True
+        try:
+            cursor.execute(update, (email, open_id))
+            # Commit the changes
+            self.db.commit() 
+        except:
+            self.db.rollback()
+            success = False
+            # log it
         cursor.close()
-        return True
+        return success
 
-    def remove_user(self):
-        return True
+    def remove_user(self, open_id):
+        """remove user info.
+        Delete user info from database.
+
+        Args:
+            open_id: str offered by wechat
+
+        Returns:
+            success: True/False
+        """
+        cursor = self.db.cursor()
+        delete = ("DELETE FROM users WHERE open_id=%s;")
+        success = True
+        try:
+            cursor.execute(delete, (open_id,))
+            # Commit the changes
+            self.db.commit() 
+        except:
+            self.db.rollback()
+            success = False
+            # log it
+        cursor.close()
+        return success
+
     def add_article(self):
         return True
     def update_article(self):
@@ -185,10 +219,10 @@ if __name__ == "__main__":
     
     worker = DbOperator()
 
-    '''
+    
     print("test add_user")
-    result = worker.add_user(("test_user1","test1@email.com"))
-    '''
+    result = worker.add_user(("test_user2","test2@email.com"))
+    
 
     '''
     print("test find_user")
@@ -201,15 +235,14 @@ if __name__ == "__main__":
     print(success)
     print(result)
     '''
-
+    '''
     print("test update_user")
-
     success = worker.update_user(("test_user1", "newmail@email.com"))
     print(success)
     print("update invalid user:")
     success = worker.update_user(("nobody", "newmail@xxxil.com"))
     print(success)
-    
+    '''
 
 
 
