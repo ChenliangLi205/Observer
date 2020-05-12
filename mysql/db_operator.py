@@ -94,8 +94,26 @@ class DbOperator:
             success = False
         return success, result
 
-    def update_user(self):
+    def update_user(self, user):
+        """Update user info.
+        Change user info to database.
+
+        Args:
+            user: A tuple of user info like : (open_id, email)
+
+        Returns:
+            success: True/False
+        """
+        open_id, email = user
+        cursor = self.db.cursor()
+        update = ("UPDATE users SET email='%s' WHERE open_id=%s;")
+        cursor.execute(update, (email, open_id))
+
+        # Commit the changes
+        self.db.commit() 
+        cursor.close()
         return True
+
     def remove_user(self):
         return True
     def add_article(self):
@@ -117,40 +135,7 @@ class DbOperator:
             True/False
         """
         return True
-    def create_table(self, table_name, ):
-        """Create table.
-        If table doesn't exist, creat it.
 
-        Args:
-            table_name: 'users' or 'articles'
-
-
-        Returns:
-            True/False
-        """
-
-
-
-    def get_record(self, id):
-
-        cursor = self.db.cursor()        # 使用cursor()方法获取操作游标
-
-        query = "SELECT * FROM test WHERE id = %s ;" # 无论什么类型的数据，占位符都使用%s
-        
-        # 使用execute方法执行SQL语句
-        cursor.execute(query, (id,))
-        result = cursor.fetchall()
-        '''
-        for (first_name, last_name, hire_date) in cursor:
-            print("{}, {} was hired on {:%d %b %Y}".format(
-                last_name, first_name, hire_date))
-        '''
-
-        print(result)
-        print(type(result))
-        cursor.close()
-
-        return True
 
     
 class DbCreator:
@@ -199,14 +184,14 @@ if __name__ == "__main__":
     print("start running")
     
     worker = DbOperator()
-    # result = worker.add_user(("test_user1","test1@email.com"))
 
+    '''
+    print("test add_user")
+    result = worker.add_user(("test_user1","test1@email.com"))
+    '''
 
-
-
-
-
-    
+    '''
+    print("test find_user")
     print("find exist user:")
     success, result = worker.find_user("test_user1")
     print(success)
@@ -215,7 +200,22 @@ if __name__ == "__main__":
     success, result = worker.find_user("nobody")
     print(success)
     print(result)
+    '''
+
+    print("test update_user")
+
+    success = worker.update_user(("test_user1", "newmail@email.com"))
+    print(success)
+    print("update invalid user:")
+    success = worker.update_user(("nobody", "newmail@xxxil.com"))
+    print(success)
     
+
+
+
+
+
+
     print("finish")
 
     '''# 创建数据表是一次性操作，此后不再需要执行
