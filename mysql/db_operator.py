@@ -123,6 +123,7 @@ class DbOperator:
             self.db.rollback()
             success = False
             # log it
+            print("update fail")
         cursor.close()
         return success
 
@@ -219,7 +220,7 @@ if __name__ == "__main__":
     
     worker = DbOperator()
 
-    
+    '''
     print("test add_user")
     result = worker.add_user(("test_user2","test2@email.com"))
     
@@ -234,17 +235,22 @@ if __name__ == "__main__":
     success, result = worker.find_user("nobody")
     print(success)
     print(result)
-    '''
-    '''
+    
+    
     print("test update_user")
-    success = worker.update_user(("test_user1", "newmail@email.com"))
+    success = worker.update_user(("test_user1", "newmail1111@email.com"))
     print(success)
     print("update invalid user:")
     success = worker.update_user(("nobody", "newmail@xxxil.com"))
     print(success)
-    '''
+    
 
-
+    print("test remove_user")
+    success = worker.remove_user("test_user1")
+    print(success)
+    print("remove invalid user:")
+    success = worker.remove_user("nobody")
+    print(success)
 
 
 
