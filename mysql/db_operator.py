@@ -116,9 +116,13 @@ class DbOperator:
         update = ("UPDATE users SET email=%s WHERE open_id=%s;")
         success = True
         try:
-            cursor.execute(update, (email, open_id))
+            result = cursor.execute(update, (email, open_id))
+            print(result)
+            print(cursor)
             # Commit the changes
             self.db.commit() 
+            print(result)
+            print(cursor)
         except:
             self.db.rollback()
             success = False
@@ -148,6 +152,7 @@ class DbOperator:
             self.db.rollback()
             success = False
             # log it
+            print("remove fail")
         cursor.close()
         return success
 
@@ -228,7 +233,7 @@ if __name__ == "__main__":
     '''
     print("test find_user")
     print("find exist user:")
-    success, result = worker.find_user("test_user1")
+    success, result = worker.find_user("test_user2")
     print(success)
     print(result)
     print("find invalid user:")
@@ -244,13 +249,14 @@ if __name__ == "__main__":
     success = worker.update_user(("nobody", "newmail@xxxil.com"))
     print(success)
     
-
+    '''
     print("test remove_user")
     success = worker.remove_user("test_user1")
     print(success)
     print("remove invalid user:")
     success = worker.remove_user("nobody")
     print(success)
+    '''
 
 
 
