@@ -62,7 +62,7 @@ class DbOperator:
         cursor.execute(insert_new_user, user)
 
         # Commit the changes
-        cursor.commit() 
+        self.db.commit() 
         cursor.close()
         return True
 
